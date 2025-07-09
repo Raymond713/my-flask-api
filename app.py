@@ -94,16 +94,41 @@ def update_config():
 def index():
     config = parking_data["config"][0]["parameters"]
     form_html = """
-    <html><body>
-    <h2>Update Parking Config</h2>
-    <form action="/update" method="post">
-        API Key:<br><input type="text" name="api_key" size="100" value="{{config['api_key']}}"><br>
-        UID:<br><input type="number" name="uid" value="{{config['uid']}}"><br>
-        Interval:<br><input type="number" name="interval" value="{{config['interval']}}"><br>
-        Front Light Level:<br><input type="number" name="front_light_level" value="{{config['front_light_level']}}"><br><br>
-        <input type="submit" value="Update">
-    </form>
-    </body></html>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Update Parking Config</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body { padding: 30px; }
+            .form-container { max-width: 700px; margin: auto; }
+        </style>
+    </head>
+    <body>
+    <div class="form-container">
+        <h2 class="mb-4">Update Parking Config</h2>
+        <form action="/update" method="post">
+            <div class="mb-3">
+                <label class="form-label">API Key:</label>
+                <input type="text" class="form-control" name="api_key" value="{{config['api_key']}}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">UID:</label>
+                <input type="number" class="form-control" name="uid" value="{{config['uid']}}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Interval:</label>
+                <input type="number" class="form-control" name="interval" value="{{config['interval']}}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Front Light Level:</label>
+                <input type="number" class="form-control" name="front_light_level" value="{{config['front_light_level']}}">
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+    </body>
+    </html>
     """
     return render_template_string(form_html, config=config)
 
