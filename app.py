@@ -48,16 +48,16 @@ parking_data = OrderedDict({
         }
     ],
     "config": [
-        {
-            "apply_on_next_boot": False,
+        {            
             "config_version": "2025.06.12",
+            "update_required": True
+            "apply_on_next_boot": False,
             "parameters": {
                 "api_key": "https://guidance.streetline.com/v3/guidance/by-customer?customer=api_demo_1&api_key=XXXXXXXXXXXXXXXXXX",
                 "front_light_level": 10,
                 "interval": 15,
                 "uid": 0
-            },
-            "update_required": True
+            },            
         }
     ]
 })
