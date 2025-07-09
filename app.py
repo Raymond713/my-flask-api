@@ -1,13 +1,13 @@
-from flask import Flask, jsonify, request, render_template_string
+from flask import Flask, jsonify, request, render_template_string, Response
 import threading
 import time
 import os
 from collections import OrderedDict
-from flask import Response
 from datetime import datetime
 import json
 
 app = Flask(__name__)
+
 # Global parking data with config as a list
 parking_data = OrderedDict({
     "on_street": [],
@@ -48,7 +48,7 @@ parking_data = OrderedDict({
         }
     ],
     "config": [
-        {            
+        {
             "config_version": "2025.06.12",
             "update_required": True,
             "apply_on_next_boot": False,
@@ -57,7 +57,7 @@ parking_data = OrderedDict({
                 "front_light_level": 10,
                 "interval": 15,
                 "uid": 0
-            }           
+            }
         }
     ]
 })
@@ -75,6 +75,7 @@ def update_spaces():
         elif value == 0:
             direction = 1
 
+# Start background thread
 threading.Thread(target=update_spaces, daemon=True).start()
 
 # API endpoint to get data
@@ -87,7 +88,7 @@ def get_data():
     ])
     return Response(json.dumps(result, separators=(',', ':')), mimetype='application/json')
 
-# API endpoint to update config parameters
+# Update config via API
 @app.route('/api/update_config', methods=['POST'])
 def update_config():
     data = request.json
@@ -122,19 +123,19 @@ def index():
         <form action="/update" method="post">
             <div class="mb-3">
                 <label class="form-label">API Key:</label>
-                <input type="text" class="form-control" name="api_key" value="{{config['api_key']}}">
+                <input type="text" class="form-control" name="api_key" value="{{params['api_key']}}">
             </div>
             <div class="mb-3">
                 <label class="form-label">UID:</label>
-                <input type="number" class="form-control" name="uid" value="{{config['uid']}}">
+                <input type="number" class="form-control" name="uid" value="{{params['uid']}}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Interval:</label>
-                <input type="number" class="form-control" name="interval" value="{{config['interval']}}">
+                <input type="number" class="form-control" name="interval" value="{{params['interval']}}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Front Light Level:</label>
-                <input type="number" class="form-control" name="front_light_level" value="{{config['front_light_level']}}">
+                <input type="number" class="form-control" name="front_light_level" value="{{params['front_light_level']}}">
             </div>
                         <div class="mb-3">
                 <label class="form-label">Update Required:</label>
