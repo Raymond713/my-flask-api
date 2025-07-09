@@ -4,6 +4,7 @@ import time
 import os
 from collections import OrderedDict
 from flask import Response
+from datetime import datetime
 import json
 
 app = Flask(__name__)
@@ -91,10 +92,14 @@ def get_data():
 @app.route('/api/update_config', methods=['POST'])
 def update_config():
     data = request.json
+    config_block = parking_data["config"][0]
     for key in ["api_key", "uid", "interval", "front_light_level"]:
         if key in data:
-            parking_data["config"][0]["parameters"][key] = data[key]
-    return jsonify({"status": "updated", "config": parking_data["config"]})
+            config_block["parameters"][key] = data[key]
+    config_block["apply_on_next_boot"] = data.get("apply_on_next_boot", config_block["apply_on_next_boot"])
+    config_block["update_required"] = data.get("update_required", config_block["update_required"])
+    config_block["config_version"] = datetime.now().strftime("%Y.%m.%d-%H%M")
+    return jsonify({"status": "updated", "config": config_block})
 
 # Frontend form to edit config
 @app.route('/')
@@ -131,20 +136,40 @@ def index():
                 <label class="form-label">Front Light Level:</label>
                 <input type="number" class="form-control" name="front_light_level" value="{{config['front_light_level']}}">
             </div>
+                        <div class="mb-3">
+                <label class="form-label">Update Required:</label>
+                <select class="form-select" name="update_required">
+                    <option value="true" {% if config['update_required'] %}selected{% endif %}>True</option>
+                    <option value="false" {% if not config['update_required'] %}selected{% endif %}>False</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Apply On Next Boot:</label>
+                <select class="form-select" name="apply_on_next_boot">
+                    <option value="true" {% if config['apply_on_next_boot'] %}selected{% endif %}>True</option>
+                    <option value="false" {% if not config['apply_on_next_boot'] %}selected{% endif %}>False</option>
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Update</button>
+        </form>
         </form>
     </div>
     </body>
     </html>
     """
-    return render_template_string(form_html, config=config)
+     return render_template_string(form_html, config=config, params=params)
 
 @app.route('/update', methods=['POST'])
 def update():
+    config_block = parking_data["config"][0]
+    params = config_block["parameters"]
     for key in ["api_key", "uid", "interval", "front_light_level"]:
         if key in request.form:
             val = request.form[key]
-            parking_data["config"][0]["parameters"][key] = int(val) if key in ["uid", "interval", "front_light_level"] else val
+            params[key] = int(val) if key in ["uid", "interval", "front_light_level"] else val
+    config_block["update_required"] = request.form.get("update_required", "false") == "true"
+    config_block["apply_on_next_boot"] = request.form.get("apply_on_next_boot", "false") == "true"
+    config_block["config_version"] = datetime.now().strftime("%Y.%m.%d-%H%M")
     return "<p>Config Updated</p><a href='/'>Back</a>"
 
 if __name__ == '__main__':
