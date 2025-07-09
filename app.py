@@ -49,7 +49,7 @@ parking_data = OrderedDict({
     ],
     "config": [
         {
-            "config_version": "2025.06.12",
+            "config_version": "2025.07.09-00:00",
             "update_required": True,
             "apply_on_next_boot": False,
             "parameters": {
@@ -98,7 +98,7 @@ def update_config():
             config_block["parameters"][key] = data[key]
     config_block["apply_on_next_boot"] = data.get("apply_on_next_boot", config_block["apply_on_next_boot"])
     config_block["update_required"] = data.get("update_required", config_block["update_required"])
-    config_block["config_version"] = datetime.now().strftime("%Y.%m.%d-%H%M")
+    config_block["config_version"] = datetime.now().strftime("%Y.%m.%d-%H:%M")
     return jsonify({"status": "updated", "config": config_block})
 
 # Frontend form to edit config
