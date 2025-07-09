@@ -57,7 +57,7 @@ parking_data = OrderedDict({
                 "front_light_level": 10,
                 "interval": 15,
                 "uid": 0
-            },            
+            }           
         }
     ]
 })
@@ -103,7 +103,8 @@ def update_config():
 # Frontend form to edit config
 @app.route('/')
 def index():
-    config = parking_data["config"][0]["parameters"]
+    config_block = parking_data["config"][0]
+    params = config_block["parameters"]
     form_html = """
     <!DOCTYPE html>
     <html>
@@ -151,12 +152,11 @@ def index():
             </div>
             <button type="submit" class="btn btn-primary">Update</button>
         </form>
-        </form>
     </div>
     </body>
     </html>
     """
-     return render_template_string(form_html, config=config, params=params)
+    return render_template_string(form_html, config=config_block, params=params)
 
 @app.route('/update', methods=['POST'])
 def update():
