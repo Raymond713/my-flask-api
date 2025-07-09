@@ -8,7 +8,6 @@ from datetime import datetime
 import json
 
 app = Flask(__name__)
-
 # Global parking data with config as a list
 parking_data = OrderedDict({
     "on_street": [],
