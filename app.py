@@ -78,7 +78,12 @@ threading.Thread(target=update_spaces, daemon=True).start()
 # API endpoint to get data
 @app.route('/api/data')
 def get_data():
-    return jsonify(parking_data)
+    result = OrderedDict({
+        "on_street": parking_data["on_street"],
+        "off_street": parking_data["off_street"],
+        "config": parking_data["config"]
+    })
+    return Response(json.dumps(result, indent=2, ensure_ascii=False), mimetype='application/json')
 
 # API endpoint to update config parameters
 @app.route('/api/update_config', methods=['POST'])
