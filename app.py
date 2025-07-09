@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/api/data')
 def data():
-    return jsonify({"message": "Hello from Render!"})
+    return jsonify({"message": "Hello from Railway!"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    app.run(host='0.0.0.0', port=5000)
