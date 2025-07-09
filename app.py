@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, request, render_template_string
 import threading
 import time
@@ -7,20 +6,7 @@ from collections import OrderedDict
 
 app = Flask(__name__)
 
-# Global parking config
-config = {
-    "config_version": "2025.06.12",
-    "update_required": True,
-    "apply_on_next_boot": False,
-    "parameters": {
-        "api_key": "https://guidance.streetline.com/v3/guidance/by-customer?customer=api_demo_1&api_key=XXXXXXXXXXXXXXXXXX",
-        "uid": 0,
-        "interval": 15,
-        "front_light_level": 10
-    }
-}
-
-# Global parking data
+# Global parking data with config as a list
 parking_data = OrderedDict({
     "on_street": [],
     "off_street": [
@@ -58,11 +44,23 @@ parking_data = OrderedDict({
                 ]
             }
         }
+    ],
+    "config": [
+        {
+            "apply_on_next_boot": False,
+            "config_version": "2025.06.12",
+            "parameters": {
+                "api_key": "https://guidance.streetline.com/v3/guidance/by-customer?customer=api_demo_1&api_key=XXXXXXXXXXXXXXXXXX",
+                "front_light_level": 10,
+                "interval": 15,
+                "uid": 0
+            },
+            "update_required": True
+        }
     ]
 })
 
 # Background thread to simulate changing estimated_spaces
-
 def update_spaces():
     value = 0
     direction = 1
@@ -80,12 +78,7 @@ threading.Thread(target=update_spaces, daemon=True).start()
 # API endpoint to get data
 @app.route('/api/data')
 def get_data():
-    result = OrderedDict({
-        "on_street": parking_data["on_street"],
-        "off_street": parking_data["off_street"],
-        "config": config
-    })
-    return jsonify(result)
+    return jsonify(parking_data)
 
 # API endpoint to update config parameters
 @app.route('/api/update_config', methods=['POST'])
@@ -93,20 +86,21 @@ def update_config():
     data = request.json
     for key in ["api_key", "uid", "interval", "front_light_level"]:
         if key in data:
-            config["parameters"][key] = data[key]
-    return jsonify({"status": "updated", "config": config})
+            parking_data["config"][0]["parameters"][key] = data[key]
+    return jsonify({"status": "updated", "config": parking_data["config"]})
 
 # Frontend form to edit config
 @app.route('/')
 def index():
+    config = parking_data["config"][0]["parameters"]
     form_html = """
     <html><body>
     <h2>Update Parking Config</h2>
     <form action="/update" method="post">
-        API Key:<br><input type="text" name="api_key" value="{{config['parameters']['api_key']}}"><br>
-        UID:<br><input type="number" name="uid" value="{{config['parameters']['uid']}}"><br>
-        Interval:<br><input type="number" name="interval" value="{{config['parameters']['interval']}}"><br>
-        Front Light Level:<br><input type="number" name="front_light_level" value="{{config['parameters']['front_light_level']}}"><br><br>
+        API Key:<br><input type="text" name="api_key" size="100" value="{{config['api_key']}}"><br>
+        UID:<br><input type="number" name="uid" value="{{config['uid']}}"><br>
+        Interval:<br><input type="number" name="interval" value="{{config['interval']}}"><br>
+        Front Light Level:<br><input type="number" name="front_light_level" value="{{config['front_light_level']}}"><br><br>
         <input type="submit" value="Update">
     </form>
     </body></html>
@@ -118,7 +112,7 @@ def update():
     for key in ["api_key", "uid", "interval", "front_light_level"]:
         if key in request.form:
             val = request.form[key]
-            config["parameters"][key] = int(val) if key in ["uid", "interval", "front_light_level"] else val
+            parking_data["config"][0]["parameters"][key] = int(val) if key in ["uid", "interval", "front_light_level"] else val
     return "<p>Config Updated</p><a href='/'>Back</a>"
 
 if __name__ == '__main__':
