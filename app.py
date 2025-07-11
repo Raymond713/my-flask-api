@@ -131,11 +131,11 @@ def index():
             </div>
             <div class="mb-3">
                 <label class="form-label">Interval:</label>
-                <input type="number" class="form-control" name="interval" value="{{params['interval']}}">
+                <input type="number" class="form-control" name="interval" value="{{params['interval']}}" min="10">
             </div>
             <div class="mb-3">
                 <label class="form-label">Front Light Level:</label>
-                <input type="number" class="form-control" name="front_light_level" value="{{params['front_light_level']}}">
+                <input type="number" class="form-control" name="front_light_level" value="{{params['front_light_level']}}" min="1" max="12">
             </div>
                         <div class="mb-3">
                 <label class="form-label">Update Required:</label>
@@ -169,7 +169,7 @@ def update():
             params[key] = int(val) if key in ["uid", "interval", "front_light_level"] else val
     config_block["update_required"] = request.form.get("update_required", "false") == "true"
     config_block["apply_on_next_boot"] = request.form.get("apply_on_next_boot", "false") == "true"
-    config_block["config_version"] = datetime.now().strftime("%Y.%m.%d-%H%M")
+    config_block["config_version"] = datetime.now().strftime("%Y.%m.%d-%H:%M:%S")
     return "<p>Config Updated</p><a href='/'>Back</a>"
 
 if __name__ == '__main__':
